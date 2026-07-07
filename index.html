@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Life Chapters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'oklch(0.95 0.03 210)',
+            foreground: 'oklch(0.145 0 0)',
+            card: 'oklch(1 0 0)',
+            'card-hover': 'oklch(0.97 0 0)',
+            muted: 'oklch(0.55 0 0)',
+            border: 'oklch(0.9 0.02 210)',
+            primary: 'oklch(0.48 0.18 260)',
+            'primary-light': 'oklch(0.82 0.1 260)',
+            accent: 'oklch(0.55 0.15 240)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { --bg: oklch(0.95 0.03 210); --fg: oklch(0.145 0 0); --card-bg: oklch(1 0 0); --card-hover-bg: oklch(0.97 0 0); --muted-text: oklch(0.55 0 0); --border-color: oklch(0.9 0.02 210); --primary: oklch(0.48 0.18 260); --primary-light: oklch(0.82 0.1 260); --accent: oklch(0.55 0.15 240); }
+    body { background: var(--bg); color: var(--fg); font-family: 'Chewy', system-ui, -apple-system, sans-serif; }
+    .card { background: var(--card-bg); border-color: var(--border-color); }
+    .card-hover-bg { background: var(--card-hover-bg); }
+    .text-muted { color: var(--muted-text); }
+    .border-color { border-color: var(--border-color); }
+
+    /* ── Animations ──────────────────────────────────────── */
+    @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scale-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes float-sparkle { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; } 50% { transform: translateY(-14px) rotate(180deg); opacity: 1; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes pulse-soft { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+    @keyframes wave { 0% { transform: translateX(0); } 50% { transform: translateX(-10px); } 100% { transform: translateX(0); } }
+    @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--primary) 30%, transparent); } 50% { box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 50%, transparent), 0 0 40px color-mix(in srgb, var(--primary) 20%, transparent); } }
+
+    .animate-fade-in { animation: fade-in 0.35s ease-out; }
+    .animate-slide-up { animation: slide-up 0.45s ease-out; }
+    .animate-scale-in { animation: scale-in 0.3s ease-out; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-sparkle { animation: float-sparkle 4s ease-in-out infinite; }
+    .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+    .animate-twinkle { animation: twinkle 2.5s ease-in-out infinite; }
+    .animate-wave { animation: wave 3s ease-in-out infinite; }
+    .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+    .shimmer-bg {
+      background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--primary) 6%, transparent) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-bg::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 50%, color-mix(in srgb, var(--primary) 4%, transparent) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Nav ──────────────────────────────────────────────── */
+    .tab-active { color: var(--primary) !important; }
+    .tab-inactive { color: var(--muted-text); }
+    .tab-inactive:hover { color: var(--fg); }
+    .nav-tab { position: relative; }
+    .nav-tab.tab-active::after {
+      content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+      width: 16px; height: 3px; border-radius: 2px; background: var(--primary);
+    }
+
+    /* ── Mood ─────────────────────────────────────────────── */
+    .mood-btn { transition: all 0.2s ease; position: relative; overflow: hidden; }
+    .mood-btn:hover { transform: scale(1.06); }
+    .mood-btn.selected { background: color-mix(in srgb, var(--primary) 20%, transparent) !important; transform: scale(1.12); box-shadow: 0 0 16px color-mix(in srgb, var(--primary) 25%, transparent); }
+    .mood-btn.selected .mood-emoji { animation: float 2s ease-in-out infinite; }
+
+    /* ── Pills ────────────────────────────────────────────── */
+    .pill-done { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary); }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .primary-bg { background: var(--primary); }
+    .primary-bg-hover:hover { background: color-mix(in srgb, var(--primary) 85%, black); }
+    .primary-ring:focus { outline: 2px solid color-mix(in srgb, var(--primary) 30%, transparent); outline-offset: 2px; }
+
+    /* ── Cards ────────────────────────────────────────────── */
+    .gradient-card {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 6%, transparent), var(--card-bg), color-mix(in srgb, var(--accent) 6%, transparent));
+      border-color: var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+    .gradient-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 50%, var(--accent)), transparent);
+      opacity: 0.6;
+    }
+
+    .day-card {
+      position: relative; overflow: hidden;
+      box-shadow: 0 1px 3px color-mix(in srgb, black 4%, transparent), 0 1px 2px color-mix(in srgb, black 3%, transparent);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .day-card:hover { box-shadow: 0 4px 16px color-mix(in srgb, black 7%, transparent), 0 2px 4px color-mix(in srgb, black 4%, transparent); transform: translateY(-1px); }
+    .day-card::after {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+      background: linear-gradient(to bottom, var(--primary), color-mix(in srgb, var(--primary) 40%, transparent));
+      border-radius: 0 2px 2px 0; opacity: 0.3;
+    }
+
+    .section-card { position: relative; overflow: hidden; }
+    .section-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 30%, transparent));
+      opacity: 0.25;
+    }
+
+    /* ── Mood bars ────────────────────────────────────────── */
+    .mood-bar-track { background: var(--card-hover-bg); }
+    .mood-bar-fill { background: linear-gradient(to top, var(--primary), color-mix(in srgb, var(--primary) 50%, white)); border-radius: 999px; }
+
+    /* ── Stars ────────────────────────────────────────────── */
+    .star-filled { color: var(--accent); }
+    .star-empty { opacity: 0.2; }
+
+    /* ── Glass nav ────────────────────────────────────────── */
+    .glass-nav { background: color-mix(in srgb, var(--card-bg) 85%, transparent); backdrop-filter: blur(20px) saturate(200%); border-top: 1px solid var(--border-color); }
+
+    /* ── Decorative blobs ─────────────────────────────────── */
+    .blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; }
+    .blob-1 { width: 300px; height: 300px; background: radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 70%); top: -100px; right: -80px; animation: float 6s ease-in-out infinite; }
+    .blob-2 { width: 220px; height: 220px; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 70%); bottom: 120px; left: -80px; animation: float 8s ease-in-out infinite reverse; }
+    .blob-3 { width: 180px; height: 180px; background: radial-gradient(circle, color-mix(in srgb, var(--primary) 10%, transparent) 0%, transparent 70%); bottom: -40px; right: 15%; animation: float 5s ease-in-out infinite 1s; }
+    .blob-4 { width: 140px; height: 140px; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 70%); top: 40%; left: -40px; animation: float 7s ease-in-out infinite 0.5s; }
+
+    /* ── Sparkles ─────────────────────────────────────────── */
+    .sparkle {
+      position: fixed; pointer-events: none; z-index: -1;
+      font-size: 14px; opacity: 0.5;
+    }
+    .sparkle:nth-child(5) { top: 15%; left: 8%; animation: float-sparkle 4s ease-in-out infinite; font-size: 10px; }
+    .sparkle:nth-child(6) { top: 70%; right: 6%; animation: float-sparkle 5s ease-in-out infinite 1s; font-size: 16px; }
+    .sparkle:nth-child(7) { top: 30%; right: 10%; animation: float-sparkle 6s ease-in-out infinite 0.5s; font-size: 8px; }
+    .sparkle:nth-child(8) { bottom: 40%; left: 4%; animation: float-sparkle 4.5s ease-in-out infinite 1.5s; font-size: 12px; }
+
+    /* ── Wave header ──────────────────────────────────────── */
+    .wave-header {
+      position: relative;
+    }
+    .wave-header::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 50%, var(--accent)), var(--primary));
+      border-radius: 2px;
+      animation: shimmer 3s ease-in-out infinite;
+      background-size: 200% 100%;
+    }
+
+    /* ── Timeline ─────────────────────────────────────────── */
+    .chapter-line { background: var(--border-color); }
+    .timeline-diamond {
+      width: 10px; height: 10px; transform: rotate(45deg);
+      background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--accent)));
+      box-shadow: 0 0 0 3px var(--bg);
+    }
+
+    /* ── Gradient text ────────────────────────────────────── */
+    .gradient-text { background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 50%, var(--accent))); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ── Success overlay ──────────────────────────────────── */
+    .success-overlay {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--bg) 50%, transparent); backdrop-filter: blur(6px); z-index: 50;
+      animation: fade-in 0.2s ease-out;
+    }
+    .success-card {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 24px; padding: 2.5rem; text-align: center;
+      box-shadow: 0 20px 60px color-mix(in srgb, black 15%, transparent), 0 0 40px color-mix(in srgb, var(--primary) 10%, transparent);
+      animation: scale-in 0.3s ease-out;
+      position: relative; overflow: hidden;
+    }
+    .success-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .success-emoji { font-size: 3.5rem; display: block; margin-bottom: 0.5rem; animation: float 2s ease-in-out infinite; }
+
+    /* ── Decorative divider ──────────────────────────────── */
+    .divider-dots {
+      display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0;
+    }
+    .divider-dots span {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: color-mix(in srgb, var(--primary) 20%, transparent);
+    }
+
+    /* ── Habit grid card ──────────────────────────────────── */
+    .habit-grid-card {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 3%, transparent), var(--card-bg));
+      border-color: var(--border-color);
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--primary) 15%, transparent); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+
+  <span class="sparkle">✦</span>
+  <span class="sparkle">✦</span>
+  <span class="sparkle">✦</span>
+  <span class="sparkle">✦</span>
+
+  <main class="flex-1 max-w-lg w-full mx-auto px-4 pb-28 pt-5">
+    <!-- Header -->
+    <div class="wave-header flex items-center gap-2.5 mb-6 pb-3">
+      <span class="text-2xl animate-float">📖</span>
+      <div class="flex-1">
+        <h1 class="text-xl font-bold gradient-text tracking-tight">Life Chapters</h1>
+        <p class="text-[11px] text-muted mt-0.5">Your story, one day at a time</p>
+      </div>
+      <span class="text-lg animate-sparkle" style="color:var(--primary)">✦</span>
+    </div>
+
+    <!-- Timeline View -->
+    <div id="view-timeline" class="view active"></div>
+
+    <!-- Check-in View -->
+    <div id="view-checkin" class="view"></div>
+
+    <!-- Log View -->
+    <div id="view-log" class="view"></div>
+
+    <!-- Habits View -->
+    <div id="view-habits" class="view"></div>
+
+    <!-- Recap View -->
+    <div id="view-recap" class="view"></div>
+
+    <!-- Period View -->
+    <div id="view-period" class="view"></div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="glass-nav fixed bottom-0 left-0 right-0 border-t border-color safe-area-bottom">
+    <div class="max-w-lg mx-auto flex items-center justify-around h-16">
+      <button data-view="timeline" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-active transition-all duration-200">
+        <span class="text-xl leading-none">📖</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Timeline</span>
+      </button>
+      <button data-view="checkin" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-inactive transition-all duration-200">
+        <span class="text-xl leading-none">✨</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Check-in</span>
+      </button>
+      <button data-view="log" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-inactive transition-all duration-200">
+        <span class="text-xl leading-none">🎬</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Log</span>
+      </button>
+      <button data-view="habits" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-inactive transition-all duration-200">
+        <span class="text-xl leading-none">🏃</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Habits</span>
+      </button>
+      <button data-view="recap" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-inactive transition-all duration-200">
+        <span class="text-xl leading-none">📊</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Recap</span>
+      </button>
+      <button data-view="period" id="nav-period" class="nav-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0 tab-inactive transition-all duration-200" style="display:none">
+        <span class="text-xl leading-none">🩸</span>
+        <span class="text-[10px] font-semibold leading-tight tracking-wide">Period</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    // ─── State & Data Layer ──────────────────────────────────────────────
+    const MOOD_EMOJIS = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '🤩' };
+    const TYPE_EMOJIS = { movie: '🎬', show: '📺', song: '🎵', book: '📖', audiobook: '🎧', podcast: '🎙️' };
+    const TYPE_LABELS = { movie: 'Movies', show: 'TV Shows', song: 'Songs', book: 'Books', audiobook: 'Audiobooks', podcast: 'Podcasts' };
+    const LIKES_OPTIONS = [
+      'Story', 'Characters', 'Writing', 'Acting', 'Music', 'Visuals',
+      'Humor', 'Plot', 'Atmosphere', 'Pacing', 'Emotion', 'Production',
+      'Narration', 'Insight', 'Energy', 'Cinematography', 'World-building', 'Themes'
+    ];
+    const MOODS = [
+      { value: 1, emoji: '😞', label: 'Rough' },
+      { value: 2, emoji: '😐', label: 'Meh' },
+      { value: 3, emoji: '🙂', label: 'Okay' },
+      { value: 4, emoji: '😊', label: 'Good' },
+      { value: 5, emoji: '🤩', label: 'Great' },
+    ];
+    const ENERGY_LEVELS = [
+      { value: 1, emoji: '🪫', label: 'Drained' },
+      { value: 2, emoji: '🔋', label: 'Low' },
+      { value: 3, emoji: '⚡', label: 'Steady' },
+      { value: 4, emoji: '⚡⚡', label: 'Energetic' },
+      { value: 5, emoji: '🔥', label: 'Buzzing' },
+    ];
+    const WEATHERS = [
+      { value: 'sunny', emoji: '☀️', label: 'Sunny' },
+      { value: 'cloudy', emoji: '☁️', label: 'Cloudy' },
+      { value: 'rainy', emoji: '🌧️', label: 'Rainy' },
+      { value: 'snowy', emoji: '❄️', label: 'Snowy' },
+      { value: 'windy', emoji: '💨', label: 'Windy' },
+    ];
+    const DURATIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300];
+    const ENTRIES_KEY = 'life-entries';
+    const HABITS_KEY = 'life-habits';
+
+    const DEFAULT_HABITS = [
+      'Exercising', 'Reading', 'Meditating', 'Walking', 'Running', 'Yoga', 'Stretching',
+      'Cooking', 'Journaling', 'Studying', 'Working', 'Cleaning', 'Gardening', 'Writing',
+      'Painting', 'Playing music', 'Dancing', 'Swimming', 'Biking', 'Hiking',
+      'Drawing', 'Playing sports', 'Learning something new', 'Exploring new places',
+      'Practicing language', 'Photography', 'Volunteering', 'Baking', 'Calling a friend', 'Climbing'
+    ];
+
+    const PROFILE_KEY = 'life-profile';
+    const PERIODS_KEY = 'life-periods';
+    const PERIOD_SYMPTOMS = ['Cramps','Bloating','Headache','Fatigue','Mood swings','Backache','Nausea','Breast tenderness','Acne','Insomnia'];
+    const FLOW_LEVELS = ['Light', 'Medium', 'Heavy'];
+    const COLOR_SCHEMES = {
+      pink:    { h: 10,  a: 30  },
+      red:     { h: 30,  a: 10  },
+      orange:  { h: 60,  a: 40  },
+      yellow:  { h: 100, a: 80  },
+      green:   { h: 150, a: 130 },
+      blue:    { h: 250, a: 230 },
+      purple:  { h: 300, a: 280 },
+      black:   { h: 0,   a: 0, n: true },
+      grey:    { h: 0,   a: 0, n: true },
+      white:   { h: 0,   a: 0, n: true },
+    };
+
+    function loadProfile() { try { const r = localStorage.getItem(PROFILE_KEY); return r ? JSON.parse(r) : null; } catch { return null; } }
+    function saveProfile(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
+    function loadPeriods() { try { const r = localStorage.getItem(PERIODS_KEY); return r ? JSON.parse(r) : { logs: {}, cycleLength: 28, periodLength: 5 }; } catch { return { logs: {}, cycleLength: 28, periodLength: 5 }; } }
+    function savePeriods(p) { localStorage.setItem(PERIODS_KEY, JSON.stringify(p)); }
+    function isNeutral(c) { return COLOR_SCHEMES[c]?.n; }
+    function schemeValue(h, c, L) { return `oklch(${L} ${c} ${h})`; }
+
+    const ACCOUNTS_KEY = 'life-accounts';
+    const SESSION_KEY = 'life-session';
+    const BANNED_WORDS = ['fuck','shit','ass','bitch','damn','crap','dick','piss','slut','whore','bastard','cock','cunt'];
+    function simpleHash(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; } return 'h' + Math.abs(h).toString(36); }
+    function loadAccounts() { try { const r = localStorage.getItem(ACCOUNTS_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; } }
+    function saveAccounts(a) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
+    function getSession() { try { const r = localStorage.getItem(SESSION_KEY); return r ? JSON.parse(r) : null; } catch { return null; } }
+    function setSession(u) { localStorage.setItem(SESSION_KEY, JSON.stringify({ username: u })); }
+    function clearSession() { localStorage.removeItem(SESSION_KEY); }
+    function hasAccounts() { return Object.keys(loadAccounts()).length > 0; }
+    function hasAccountBanner() {
+      const entries = loadEntries();
+      if (entries.length === 0) return false;
+      if (hasAccounts()) return false;
+      return !localStorage.getItem('life-banner-dismissed');
+    }
+    function containsBannedWord(s) {
+      const lower = s.toLowerCase();
+      return BANNED_WORDS.some(w => lower.includes(w));
+    }
+    function buildTheme(colorName, dark) {
+      const c = COLOR_SCHEMES[colorName] || COLOR_SCHEMES.blue;
+      const h = c.h; const a = c.a;
+      const neutral = c.n;
+      if (neutral) {
+        return dark
+          ? { bg: 'oklch(0.18 0 0)', fg: 'oklch(0.985 0 0)', card: 'oklch(0.24 0 0)', hover: 'oklch(0.3 0 0)', muted: 'oklch(0.65 0 0)', border: 'oklch(0.3 0 0)', primary: 'oklch(0.65 0 0)', pl: 'oklch(0.35 0 0)', accent: 'oklch(0.6 0 0)' }
+          : { bg: 'oklch(0.95 0 0)', fg: 'oklch(0.145 0 0)', card: 'oklch(1 0 0)', hover: 'oklch(0.97 0 0)', muted: 'oklch(0.55 0 0)', border: 'oklch(0.9 0 0)', primary: 'oklch(0.48 0 0)', pl: 'oklch(0.82 0 0)', accent: 'oklch(0.55 0 0)' };
+      }
+      const ch = 0.18;
+      return dark
+        ? { bg: schemeValue(h, 0.05, 0.18), fg: 'oklch(0.985 0 0)', card: schemeValue(h, 0.04, 0.24), hover: schemeValue(h, 0.04, 0.3), muted: 'oklch(0.65 0 0)', border: schemeValue(h, 0.04, 0.3), primary: schemeValue(h, ch, 0.7), pl: schemeValue(h, 0.1, 0.32), accent: schemeValue(a, 0.15, 0.65) }
+        : { bg: schemeValue(h, 0.03, 0.95), fg: 'oklch(0.145 0 0)', card: 'oklch(1 0 0)', hover: 'oklch(0.97 0 0)', muted: 'oklch(0.55 0 0)', border: schemeValue(h, 0.02, 0.9), primary: schemeValue(h, ch, 0.48), pl: schemeValue(h, 0.1, 0.82), accent: schemeValue(a, 0.15, 0.55) };
+    }
+
+    function loadEntries() { try { const r = localStorage.getItem(ENTRIES_KEY); return r ? JSON.parse(r) : []; } catch { return []; } }
+    function saveEntries(entries) { localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries)); }
+    function todayStr() { return new Date().toISOString().split('T')[0]; }
+    function getTodayEntry(entries) { return entries.find(e => e.date === todayStr()); }
+    function loadHabits() { try { const r = localStorage.getItem(HABITS_KEY); return r ? JSON.parse(r) : null; } catch { return null; } }
+    function saveHabits(h) { localStorage.setItem(HABITS_KEY, JSON.stringify(h)); }
+    function getHabits() {
+      const saved = loadHabits();
+      if (saved && Array.isArray(saved) && saved.length > 0) return saved;
+      saveHabits(DEFAULT_HABITS);
+      return [...DEFAULT_HABITS];
+    }
+
+    function upsertEntry(entry) {
+      const entries = loadEntries();
+      const idx = entries.findIndex(e => e.date === entry.date);
+      if (idx >= 0) entries[idx] = entry; else entries.push(entry);
+      entries.sort((a, b) => b.date.localeCompare(a.date));
+      saveEntries(entries); return entries;
+    }
+
+    function addEntertainment(date, item) {
+      const entries = loadEntries();
+      let entry = entries.find(e => e.date === date);
+      if (!entry) { entry = { date, habits: [], entertainment: [] }; entries.push(entry); }
+      entry.entertainment.push(item);
+      entries.sort((a, b) => b.date.localeCompare(a.date));
+      saveEntries(entries); return entries;
+    }
+
+    function generateChapters(entries) {
+      if (entries.length === 0) return [];
+      const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+      const chapters = []; let chapterEntries = []; let chapterStart;
+      for (const entry of sorted) {
+        if (chapterEntries.length === 0) chapterStart = entry.date;
+        chapterEntries.push(entry);
+        if (chapterEntries.length === 7) {
+          chapters.push(buildChapter(chapterStart, entry.date, chapterEntries));
+          chapterEntries = [];
+        }
+      }
+      if (chapterEntries.length > 0)
+        chapters.push(buildChapter(chapterStart, sorted[sorted.length - 1].date, chapterEntries));
+      return chapters.reverse();
+    }
+
+    function buildChapter(start, end, entries) {
+      const moods = entries.filter(e => e.mood).map(e => e.mood);
+      const avgMood = moods.length > 0 ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length) : 3;
+      const allHabits = entries.flatMap(e => e.habits.filter(h => h.duration > 0).map(h => h.name));
+      const topHabit = allHabits.length > 0 ? allHabits.sort((a, b) => allHabits.filter(h => h === b).length - allHabits.filter(h => h === a).length)[0] : null;
+      const allEnt = entries.flatMap(e => e.entertainment);
+      const typeCounts = {};
+      for (const ent of allEnt) typeCounts[ent.type] = (typeCounts[ent.type] || 0) + 1;
+      const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+      const moodLabels = { 1: 'Tough', 2: 'Low', 3: 'Steady', 4: 'Good', 5: 'Great' };
+      const titles = [];
+      if (topHabit) titles.push('The Week You Rediscovered ' + topHabit);
+      if (topType) titles.push('The ' + topType[0].charAt(0).toUpperCase() + topType[0].slice(1) + ' Week');
+      titles.push('A ' + moodLabels[avgMood] + ' Week');
+      return { id: start + '-' + end, startDate: start, endDate: end, title: titles[0] };
+    }
+
+    function getWeekRange() {
+      const now = new Date(); const dow = now.getDay(); const diff = dow === 0 ? 6 : dow - 1;
+      const mon = new Date(now); mon.setDate(now.getDate() - diff);
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      return { start: mon.toISOString().split('T')[0], end: sun.toISOString().split('T')[0] };
+    }
+    function getWeekEntries(entries) { const { start, end } = getWeekRange(); return entries.filter(e => e.date >= start && e.date <= end); }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T12:00:00');
+      return { dayName: d.toLocaleDateString('en-US', { weekday: 'short' }), formatted: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
+    }
+    function formatDateLong(dateStr) {
+      return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+    function formatWeek() {
+      const now = new Date(); const dow = now.getDay(); const diff = dow === 0 ? 6 : dow - 1;
+      const mon = new Date(now); mon.setDate(now.getDate() - diff);
+      return 'Week of ' + mon.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    }
+    function nextWeekEnd() {
+      const d = new Date(); d.setDate(d.getDate() + 7);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    // ─── Dynamic Theming ─────────────────────────────────────────────────
+    function applyProfileTheme(profile) {
+      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const color = profile?.color || 'blue';
+      const t = buildTheme(color, dark);
+      document.body.classList.toggle('dark', dark);
+      Object.entries(t).forEach(([k, v]) => {
+        const map = { pl: 'primary-light', hover: 'card-hover-bg', card: 'card-bg', muted: 'muted-text', border: 'border-color' };
+        document.documentElement.style.setProperty('--' + (map[k] || k), v);
+      });
+    }
+    applyProfileTheme(loadProfile());
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyProfileTheme(loadProfile()));
+
+    // ─── Navigation ─────────────────────────────────────────────────────
+    const views = {};
+    ['timeline', 'checkin', 'log', 'habits', 'recap', 'period'].forEach(k => views[k] = document.getElementById('view-' + k));
+    const navTabs = document.querySelectorAll('.nav-tab');
+
+    function switchView(name) {
+      Object.keys(views).forEach(k => views[k].classList.toggle('active', k === name));
+      navTabs.forEach(tab => {
+        tab.classList.toggle('tab-active', tab.dataset.view === name);
+        tab.classList.toggle('tab-inactive', tab.dataset.view !== name);
+      });
+      if (name === 'timeline') renderTimeline();
+      else if (name === 'checkin') renderCheckin();
+      else if (name === 'log') renderLog();
+      else if (name === 'habits') renderHabits();
+      else if (name === 'period') renderPeriod();
+      else if (name === 'recap') renderRecap();
+    }
+    navTabs.forEach(tab => tab.addEventListener('click', () => switchView(tab.dataset.view)));
+
+    // ─── Show Success ────────────────────────────────────────────────────
+    function showSuccess(emoji, msg, cb) {
+      const div = document.createElement('div');
+      div.className = 'success-overlay';
+      div.innerHTML = `<div class="success-card"><span class="success-emoji">${emoji}</span><p class="text-lg font-semibold">${msg}</p></div>`;
+      document.body.appendChild(div);
+      setTimeout(() => { div.remove(); if (cb) cb(); }, 1200);
+    }
+
+    // ─── Check-in State ──────────────────────────────────────────────────
+    let checkinMood, checkinEnergy, checkinWeather, checkinSleep;
+    let checkinHabits = [];
+    let checkinJournal = '';
+
+    // ─── Log State ───────────────────────────────────────────────────────
+    let logType = 'movie';
+    let logTitle = '';
+    let logRating = 3;
+    let logTag = '';
+    let logLikes = [];
+    let logLikesCustom = '';
+    let logArtist = '';
+    let logAuthor = '';
+    let logHost = '';
+
+    // ─── Day Sentence Generator ──────────────────────────────────────────
+    function generateDaySentence(entry) {
+      const mood = entry.mood ? MOOD_EMOJIS[entry.mood] : null;
+      const moodWord = entry.mood ? ['pretty rough', 'meh', 'okay', 'good', 'great'][entry.mood - 1] : null;
+      const habits = (entry.habits || []).filter(h => h.duration > 0);
+      const ents = entry.entertainment || [];
+      const journal = entry.journal;
+
+      const parts = [];
+
+      if (habits.length > 0) {
+        const h = habits[Math.floor(Math.random() * habits.length)];
+        parts.push({ type: 'habit', text: `${h.name} for ${h.duration}m` });
+      }
+
+      if (mood) {
+        parts.push({ type: 'mood', text: `felt ${moodWord}`, emoji: mood });
+      }
+
+      if (ents.length > 0) {
+        const e = ents[Math.floor(Math.random() * ents.length)];
+        const typeVerb = { movie: 'watched', show: 'watched', song: 'listened to', book: 'read', audiobook: 'listened to', podcast: 'listened to' }[e.type] || 'checked out';
+        const meta = e.artist ? ` by ${e.artist}` : e.author ? ` by ${e.author}` : e.host ? ` (hosted by ${e.host})` : '';
+        const likes = (e.likes || []).filter(Boolean);
+        let entStr = `${typeVerb} "${e.title}"${meta}`;
+        if (likes.length > 0) {
+          const sample = likes.slice(0, Math.min(2, likes.length));
+          entStr += ` (liked: ${sample.join(', ')})`;
+        }
+        parts.push({ type: 'ent', text: entStr });
+      }
+
+      if (journal) {
+        parts.push({ type: 'journal', text: `"${journal}"` });
+      }
+
+      if (parts.length === 0) return null;
+
+      // Shuffle parts
+      for (let i = parts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [parts[i], parts[j]] = [parts[j], parts[i]];
+      }
+
+      const moodEmoji = parts.find(p => p.type === 'mood')?.emoji || '';
+      const nonMoodParts = parts.filter(p => p.type !== 'mood');
+      const moodPart = parts.find(p => p.type === 'mood');
+
+      // Build sentence
+      let sentence = '';
+      if (nonMoodParts.length === 1) {
+        sentence = `${nonMoodParts[0].text}.`;
+        if (moodPart) sentence = `${moodPart.emoji} ${sentence}`;
+      } else if (nonMoodParts.length === 2) {
+        sentence = `${nonMoodParts[0].text} and ${nonMoodParts[1].text}.`;
+        if (moodPart) sentence = `${moodPart.emoji} ${sentence}`;
+      } else {
+        const last = nonMoodParts.pop();
+        sentence = nonMoodParts.map(p => p.text).join(', ') + `, and ${last.text}.`;
+        if (moodPart) sentence = `${moodPart.emoji} ${sentence}`;
+      }
+
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+    }
+
+    // ─── Render Timeline ─────────────────────────────────────────────────
+    function renderTimeline() {
+      const el = views.timeline;
+      const entries = loadEntries();
+      if (entries.length === 0) {
+        el.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-center space-y-4">
+          <span class="text-6xl animate-float">🌱</span>
+          <h2 class="text-xl font-semibold">Your story starts today</h2>
+          <p class="text-sm text-muted max-w-xs leading-relaxed">Check in to log your mood, habits, and what you're watching or reading.</p>
+          <button data-view="checkin" class="mt-2 px-6 py-2.5 rounded-full primary-bg text-white text-sm font-medium transition-all hover:opacity-90 active:scale-95" onclick="switchView('checkin')">First check-in</button>
+        </div>`;
+        return;
+      }
+      const chapters = generateChapters(entries);
+      let html = '';
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const ch = chapters.find(c => c.endDate === entry.date);
+        if (ch) html += renderChapter(ch);
+        html += renderDayCard(entry);
+        if (i < entries.length - 1) {
+          html += '<div class="divider-dots"><span></span><span></span><span></span><span></span><span></span></div>';
+        }
+      }
+      el.innerHTML = html + renderAccountBanner();
+
+      const createBtn = document.getElementById('create-account-btn');
+      if (createBtn) createBtn.addEventListener('click', renderAccountSetup);
+      const dismissBtn = document.getElementById('dismiss-banner-btn');
+      if (dismissBtn) dismissBtn.addEventListener('click', () => {
+        localStorage.setItem('life-banner-dismissed', '1');
+        renderTimeline();
+      });
+    }
+
+    function renderChapter(ch) {
+      const { formatted: d1 } = formatDate(ch.startDate);
+      const { formatted: d2 } = formatDate(ch.endDate);
+      return `<div class="relative py-5">
+        <div class="absolute left-[11px] top-0 bottom-0 w-0.5 chapter-line"></div>
+        <div class="flex items-start gap-3">
+          <div class="relative z-10 mt-0.5 w-[26px] h-[26px] rounded-full flex items-center justify-center animate-scale-in" style="background:linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--accent)));box-shadow:0 0 0 4px var(--bg)">
+            <span class="text-white text-xs font-bold">★</span>
+          </div>
+          <div class="flex-1 min-w-0 pt-1">
+            <span class="text-[10px] font-semibold text-muted uppercase tracking-widest">Chapter</span>
+            <h3 class="text-base font-bold mt-0.5 leading-snug gradient-text">${ch.title}</h3>
+            <p class="text-xs text-muted mt-0.5">${d1} – ${d2}</p>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderDayCard(entry) {
+      const { dayName, formatted } = formatDate(entry.date);
+      let extras = '';
+      if (entry.energy) extras += `<span class="text-xs">${ENERGY_LEVELS[entry.energy - 1].emoji}</span> `;
+      if (entry.weather) extras += `<span class="text-xs">${WEATHERS.find(w => w.value === entry.weather).emoji}</span> `;
+      if (entry.sleep) extras += `<span class="text-xs text-muted" title="Sleep">💤 ${entry.sleep}h</span> `;
+
+      let habitsHtml = '';
+      if (entry.habits && entry.habits.length > 0) {
+        habitsHtml = '<div class="flex flex-wrap gap-1.5">' + entry.habits.filter(h => h.duration > 0).map(h =>
+          `<span class="text-xs px-2 py-0.5 rounded-full pill-done">${h.name} ${h.duration}m</span>`
+        ).join('') + '</div>';
+      }
+      const journalHtml = entry.journal ? `<p class="text-sm leading-relaxed italic" style="color:color-mix(in srgb, var(--fg) 75%, transparent)">“${entry.journal}”</p>` : '';
+      let entHtml = '';
+      if (entry.entertainment && entry.entertainment.length > 0) {
+        entHtml = '<div class="space-y-1.5 pt-1 border-t border-color mt-2">' + entry.entertainment.map(e => {
+          const likes = (e.likes || []).filter(Boolean);
+          const likesHtml = likes.length > 0
+            ? '<div class="flex flex-wrap gap-1 mt-1">' + likes.map(l =>
+                `<span class="text-[10px] px-1.5 py-0.5 rounded-full" style="background:color-mix(in srgb, var(--primary) 10%, transparent);color:color-mix(in srgb, var(--primary) 80%, white)">${l}</span>`
+              ).join('') + '</div>'
+            : '';
+          const meta = e.artist ? `by ${e.artist}` : e.author ? `by ${e.author}` : e.host ? `hosted by ${e.host}` : '';
+          return `<div class="flex items-center gap-2 text-sm text-muted">
+            <span>${TYPE_EMOJIS[e.type] || '🎯'}</span>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium truncate">${e.title}</div>
+              ${meta ? `<div class="text-[10px] text-muted truncate">${meta}</div>` : ''}
+            </div>
+            <span class="text-xs shrink-0">${'★'.repeat(e.rating)}${'☆'.repeat(5 - e.rating)}</span>
+          </div>${likesHtml}`;
+        }).join('') + '</div>';
+      }
+      const sentence = generateDaySentence(entry);
+      const sentenceHtml = sentence
+        ? `<p class="text-sm leading-relaxed font-medium" style="color:color-mix(in srgb, var(--fg) 88%, var(--primary))">${sentence}</p>`
+        : '';
+
+      return `<div class="day-card card border rounded-2xl p-4 space-y-3 animate-fade-in">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-semibold text-muted uppercase tracking-widest">${dayName}</span>
+            <span class="text-sm font-medium">${formatted}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            ${extras}
+            ${entry.mood ? `<span class="text-lg" title="Mood: ${entry.mood}/5">${MOOD_EMOJIS[entry.mood]}</span>` : ''}
+          </div>
+        </div>
+        ${sentenceHtml}
+        ${habitsHtml}
+        ${journalHtml}
+        ${entHtml}
+        ${(!entry.habits || entry.habits.length === 0) && !entry.journal && (!entry.entertainment || entry.entertainment.length === 0) && !entry.mood
+          ? '<p class="text-xs text-muted">Quick check-in — no details logged</p>' : ''}
+      </div>`;
+    }
+
+    // ─── Render Check-in ─────────────────────────────────────────────────
+    function renderCheckin() {
+      const entries = loadEntries();
+      const today = getTodayEntry(entries);
+      if (today) {
+        checkinMood = today.mood;
+        checkinEnergy = today.energy;
+        checkinWeather = today.weather;
+        checkinSleep = today.sleep;
+        checkinHabits = today.habits.map(h => ({ ...h }));
+        checkinJournal = today.journal || '';
+      } else {
+        checkinMood = undefined; checkinEnergy = undefined; checkinWeather = undefined; checkinSleep = undefined;
+        checkinHabits = []; checkinJournal = '';
+      }
+      renderCheckinForm();
+    }
+
+    function renderCheckinForm() {
+      const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      const selectedNames = new Set(checkinHabits.filter(h => h.duration > 0).map(h => h.name));
+
+      // Mood
+      const moodHtml = MOODS.map(m =>
+        `<button type="button" data-mood="${m.value}" class="mood-btn flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all flex-1 ${checkinMood === m.value ? 'selected' : 'card border border-color hover:card-hover-bg'}">
+          <span class="text-2xl mood-emoji">${m.emoji}</span>
+          <span class="text-[10px] font-medium" style="color:${checkinMood === m.value ? 'var(--primary)' : 'var(--muted-text)'}">${m.label}</span>
+        </button>`
+      ).join('');
+
+      // Energy
+      const energyHtml = ENERGY_LEVELS.map(e =>
+        `<button type="button" data-energy="${e.value}" class="energy-btn flex flex-col items-center gap-1 p-3 rounded-xl transition-all flex-shrink-0 ${checkinEnergy === e.value ? 'selected' : 'card border border-color hover:card-hover-bg'}" style="${checkinEnergy === e.value ? 'background:color-mix(in srgb, var(--accent) 18%, transparent);transform:scale(1.08)' : ''}">
+          <span class="text-lg">${e.emoji}</span>
+          <span class="text-[9px] font-medium text-muted">${e.label}</span>
+        </button>`
+      ).join('');
+
+      // Weather
+      const weatherHtml = WEATHERS.map(w =>
+        `<button type="button" data-weather="${w.value}" class="weather-btn flex flex-col items-center gap-1 p-2.5 rounded-xl transition-all ${checkinWeather === w.value ? 'selected' : 'card border border-color hover:card-hover-bg'}" style="${checkinWeather === w.value ? 'background:color-mix(in srgb, var(--primary) 18%, transparent);transform:scale(1.08)' : ''}">
+          <span class="text-lg">${w.emoji}</span>
+          <span class="text-[9px] font-medium text-muted">${w.label}</span>
+        </button>`
+      ).join('');
+
+      // Sleep
+      const sleepHtml = [4,5,6,7,8,9,10,11].map(h =>
+        `<button type="button" data-sleep="${h}" class="sleep-btn w-10 h-10 rounded-full text-sm font-medium transition-all flex items-center justify-center ${checkinSleep === h ? 'primary-bg text-white' : 'card border border-color text-muted hover:card-hover-bg'}">${h}</button>`
+      ).join('');
+
+      // Habits
+      function habitDuration(name) {
+        const h = checkinHabits.find(x => x.name === name);
+        return h ? h.duration : 0;
+      }
+      const habits = getHabits();
+      const habitsBody = '<div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-48 overflow-y-auto overscroll-y-contain" style="-webkit-overflow-scrolling:touch;scrollbar-width:thin">' +
+        habits.map(name => {
+          const selected = selectedNames.has(name);
+          const dur = habitDuration(name);
+          return `<div class="flex items-stretch gap-0 ${selected ? 'rounded-xl' : ''}" style="${selected ? 'background:color-mix(in srgb, var(--primary) 10%, transparent)' : ''}">
+            <button type="button" data-habit-name="${name}" class="habit-btn flex-1 text-left px-2.5 py-2 rounded-xl text-xs font-medium transition-all ${selected ? '' : 'card border border-color hover:card-hover-bg'}">${name}</button>
+            ${selected ? `<select data-habit-name="${name}" class="habit-dur bg-transparent text-xs font-medium outline-none px-1 py-2 rounded-r-xl" style="color:var(--primary);min-width:48px">
+              ${DURATIONS.map(d => `<option value="${d}" ${dur === d ? 'selected' : ''}>${d}m</option>`).join('')}
+            </select>` : ''}
+          </div>`;
+        }).join('') + '</div>';
+
+      views.checkin.innerHTML = `<div class="space-y-5 animate-fade-in">
+        <div class="text-center space-y-1 pb-1">
+          <h2 class="text-lg font-bold">Daily Check-in</h2>
+          <p class="text-xs text-muted">${dateStr}</p>
+        </div>
+
+        <form id="checkin-form" class="space-y-5">
+          <!-- Mood -->
+          <div class="shimmer-bg rounded-2xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-semibold">Mood</label>
+              <span class="text-[10px] text-muted">How are you feeling?</span>
+            </div>
+            <div class="flex justify-between gap-2">${moodHtml}</div>
+          </div>
+
+          <!-- Energy + Weather row -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2.5">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">Energy</label>
+              <div class="flex gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 -mb-1" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">${energyHtml}</div>
+            </div>
+            <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2.5">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">Weather</label>
+              <div class="grid grid-cols-5 gap-1">${weatherHtml}</div>
+            </div>
+          </div>
+
+          <!-- Sleep -->
+          <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">Sleep</label>
+              <span class="text-[10px] text-muted">hours</span>
+            </div>
+            <div class="flex gap-2 justify-center">${sleepHtml}</div>
+          </div>
+
+          <!-- Habits -->
+          <div class="habit-grid-card card border border-color rounded-2xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">Habits</label>
+              <span class="text-[10px] text-muted">Tap to add, set duration</span>
+            </div>
+            ${habitsBody}
+          </div>
+
+          <!-- Journal -->
+          <div class="card border border-color rounded-2xl p-3.5 space-y-2">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Note</label>
+            <input id="journal-input" type="text" value="${checkinJournal.replace(/"/g, '&quot;')}" placeholder="What stood out today?" maxlength="140" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-2xl primary-bg text-white font-semibold text-sm transition-all active:scale-[0.98] hover:opacity-90" style="opacity:${checkinMood ? 1 : 0.4}">
+            Save check-in
+          </button>
+        </form>
+      </div>`;
+
+      // Attach events
+      document.querySelectorAll('.mood-btn').forEach(btn =>
+        btn.addEventListener('click', () => { checkinMood = parseInt(btn.dataset.mood); renderCheckinForm(); }));
+      document.querySelectorAll('.energy-btn').forEach(btn =>
+        btn.addEventListener('click', () => { checkinEnergy = parseInt(btn.dataset.energy); renderCheckinForm(); }));
+      document.querySelectorAll('.weather-btn').forEach(btn =>
+        btn.addEventListener('click', () => { checkinWeather = btn.dataset.weather; renderCheckinForm(); }));
+      document.querySelectorAll('.sleep-btn').forEach(btn =>
+        btn.addEventListener('click', () => { checkinSleep = parseInt(btn.dataset.sleep); renderCheckinForm(); }));
+      document.querySelectorAll('.habit-btn').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const name = btn.dataset.habitName;
+          const existing = checkinHabits.find(h => h.name === name);
+          if (existing) {
+            checkinHabits = checkinHabits.filter(h => h.name !== name);
+          } else {
+            checkinHabits.push({ name, duration: 30 });
+          }
+          renderCheckinForm();
+        }));
+      document.querySelectorAll('.habit-dur').forEach(sel =>
+        sel.addEventListener('change', () => {
+          const name = sel.dataset.habitName;
+          const h = checkinHabits.find(x => x.name === name);
+          if (h) h.duration = parseInt(sel.value);
+        }));
+      document.getElementById('journal-input').addEventListener('input', e => { checkinJournal = e.target.value; });
+      document.getElementById('checkin-form').addEventListener('submit', e => {
+        e.preventDefault();
+        if (!checkinMood) return;
+        upsertEntry({
+          date: todayStr(), mood: checkinMood, energy: checkinEnergy, weather: checkinWeather, sleep: checkinSleep,
+          habits: checkinHabits.filter(h => h.duration > 0),
+          journal: checkinJournal.trim() || undefined, entertainment: [],
+        });
+        showSuccess('✨', 'Checked in!', () => switchView('timeline'));
+      });
+    }
+
+    // ─── Render Log ──────────────────────────────────────────────────────
+    function renderLog() {
+      const typeHtml = [
+        { value: 'movie', emoji: '🎬', label: 'Movie' },
+        { value: 'show', emoji: '📺', label: 'Show' },
+        { value: 'song', emoji: '🎵', label: 'Song' },
+        { value: 'book', emoji: '📖', label: 'Book' },
+        { value: 'audiobook', emoji: '🎧', label: 'Audiobook' },
+        { value: 'podcast', emoji: '🎙️', label: 'Podcast' },
+      ].map(t =>
+        `<button type="button" data-type="${t.value}" class="type-btn flex flex-col items-center gap-1 p-2.5 rounded-2xl transition-all flex-1 ${logType === t.value ? 'selected' : 'card border border-color hover:card-hover-bg'}" style="${logType === t.value ? 'background:color-mix(in srgb, var(--primary) 18%, transparent);transform:scale(1.08)' : ''}">
+          <span class="text-xl">${t.emoji}</span>
+          <span class="text-[8px] font-medium text-muted leading-tight">${t.label}</span>
+        </button>`
+      ).join('');
+
+      const starsHtml = [1,2,3,4,5].map(r =>
+        `<button type="button" data-rating="${r}" class="rating-btn text-2xl transition-all duration-200 ${logRating >= r ? 'star-filled' : 'star-empty hover:star-filled hover:opacity-50'}" style="${logRating >= r ? 'transform:scale(1.15)' : ''}">★</button>`
+      ).join('');
+
+      const likesHtml = LIKES_OPTIONS.map(opt => {
+        const sel = logLikes.includes(opt);
+        return `<button type="button" data-like="${opt}" class="like-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${sel ? 'primary-bg text-white' : 'card border border-color text-muted hover:border-primary/50'}">${opt}</button>`;
+      }).join('');
+
+      views.log.innerHTML = `<div class="space-y-5 animate-fade-in">
+        <div class="text-center space-y-1 pb-1">
+          <h2 class="text-lg font-bold">Entertainment Log</h2>
+          <p class="text-xs text-muted">Log what you watched, read, or listened to</p>
+        </div>
+        <form id="log-form" class="space-y-4">
+          <div class="shimmer-bg rounded-2xl p-4 space-y-3">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Type</label>
+            <div class="grid grid-cols-6 gap-1.5">${typeHtml}</div>
+          </div>
+          <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider" for="log-title-input">Title</label>
+            <input id="log-title-input" type="text" value="${logTitle.replace(/"/g, '&quot;')}" placeholder="e.g. Dune: Part Two" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>
+          ${['song'].includes(logType) ? `<div class="section-card card border border-color rounded-2xl p-3.5 space-y-2 animate-fade-in">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider" for="log-artist-input">Artist</label>
+            <input id="log-artist-input" type="text" value="${logArtist.replace(/"/g, '&quot;')}" placeholder="e.g. Kendrick Lamar" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>` : ''}
+          ${['book', 'audiobook'].includes(logType) ? `<div class="section-card card border border-color rounded-2xl p-3.5 space-y-2 animate-fade-in">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider" for="log-author-input">Author</label>
+            <input id="log-author-input" type="text" value="${logAuthor.replace(/"/g, '&quot;')}" placeholder="e.g. Frank Herbert" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>` : ''}
+          ${['podcast'].includes(logType) ? `<div class="section-card card border border-color rounded-2xl p-3.5 space-y-2 animate-fade-in">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider" for="log-host-input">Host</label>
+            <input id="log-host-input" type="text" value="${logHost.replace(/"/g, '&quot;')}" placeholder="e.g. Lex Fridman" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>` : ''}
+           <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">Rating</label>
+              <span class="text-[10px] text-muted">${logRating}/5</span>
+            </div>
+            <div class="flex gap-1 justify-center py-1">${starsHtml}</div>
+          </div>
+          <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-muted uppercase tracking-wider">What I Liked</label>
+              <span class="text-[10px] text-muted">Tap to select</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">${likesHtml}</div>
+            <input type="text" value="${logLikesCustom.replace(/"/g, '&quot;')}" placeholder="Or type something else..." maxlength="60" class="like-custom-input w-full bg-transparent text-xs border-0 outline-none primary-ring py-1 border-t border-color pt-2 mt-1" style="color:var(--fg)" />
+          </div>
+          <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2">
+            <label class="text-xs font-semibold text-muted uppercase tracking-wider" for="log-tag-input">Tag <span class="font-normal text-muted">optional</span></label>
+            <input id="log-tag-input" type="text" value="${logTag.replace(/"/g, '&quot;')}" placeholder="e.g. sci-fi, thriller, jazz" class="w-full bg-transparent text-sm border-0 outline-none primary-ring py-1" style="color:var(--fg)" />
+          </div>
+          <button type="submit" class="w-full py-3.5 rounded-2xl primary-bg text-white font-semibold text-sm transition-all active:scale-[0.98] hover:opacity-90" style="opacity:${logTitle.trim() ? 1 : 0.4}">Log it</button>
+        </form>
+      </div>`;
+
+      document.querySelectorAll('.type-btn').forEach(btn =>
+        btn.addEventListener('click', () => { logType = btn.dataset.type; renderLog(); }));
+      document.querySelectorAll('.rating-btn').forEach(btn =>
+        btn.addEventListener('click', () => { logRating = parseInt(btn.dataset.rating); renderLog(); }));
+      document.querySelectorAll('.like-btn').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const opt = btn.dataset.like;
+          if (logLikes.includes(opt)) logLikes = logLikes.filter(x => x !== opt);
+          else logLikes = [...logLikes, opt];
+          renderLog();
+        }));
+      document.querySelectorAll('.like-custom-input').forEach(inp =>
+        inp.addEventListener('input', e => { logLikesCustom = e.target.value; }));
+      document.getElementById('log-title-input').addEventListener('input', e => {
+        logTitle = e.target.value;
+        const btn = document.querySelector('#log-form button[type="submit"]');
+        if (btn) btn.style.opacity = logTitle.trim() ? 1 : 0.4;
+      });
+      const fieldId = { song: 'log-artist-input', book: 'log-author-input', audiobook: 'log-author-input', podcast: 'log-host-input' }[logType];
+      if (fieldId) {
+        const el = document.getElementById(fieldId);
+        if (el) el.addEventListener('input', e => {
+          const v = e.target.value;
+          if (logType === 'song') logArtist = v;
+          else if (['book', 'audiobook'].includes(logType)) logAuthor = v;
+          else if (logType === 'podcast') logHost = v;
+        });
+      }
+      document.getElementById('log-tag-input').addEventListener('input', e => { logTag = e.target.value; });
+      document.getElementById('log-form').addEventListener('submit', e => {
+        e.preventDefault();
+        if (!logTitle.trim()) return;
+        const allLikes = [...logLikes];
+        if (logLikesCustom.trim()) allLikes.push(logLikesCustom.trim());
+        addEntertainment(todayStr(), {
+          id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          type: logType, title: logTitle.trim(), rating: logRating,
+          tag: logTag.trim() || undefined,
+          artist: logType === 'song' ? logArtist.trim() || undefined : undefined,
+          author: ['book', 'audiobook'].includes(logType) ? logAuthor.trim() || undefined : undefined,
+          host: logType === 'podcast' ? logHost.trim() || undefined : undefined,
+          likes: allLikes,
+        });
+        showSuccess('🎉', 'Logged!', () => { logTitle = ''; logTag = ''; logRating = 3; logLikes = []; logLikesCustom = ''; logArtist = ''; logAuthor = ''; logHost = ''; renderLog(); });
+      });
+    }
+
+    // ─── Render Habits ───────────────────────────────────────────────────
+    function renderHabits() {
+      const list = getHabits();
+      const itemsHtml = list.map((h, i) =>
+        `<div class="flex items-center gap-2 card border border-color rounded-xl px-3.5 py-2.5 animate-fade-in" style="animation-delay:${i * 0.04}s">
+          <span class="flex-1 text-sm font-medium">${h}</span>
+          <button type="button" data-idx="${i}" class="delete-habit-btn text-xs px-2 py-1 rounded-lg transition-all" style="color:var(--muted-text);background:color-mix(in srgb, red 8%, transparent)" title="Delete habit">✕</button>
+        </div>`
+      ).join('');
+
+      views.habits.innerHTML = `<div class="space-y-5 animate-fade-in">
+        <div class="text-center space-y-1 pb-1">
+          <h2 class="text-lg font-bold">Manage Habits</h2>
+          <p class="text-xs text-muted">Customize your habit list</p>
+        </div>
+
+        <!-- Add new habit -->
+        <form id="add-habit-form" class="shimmer-bg rounded-2xl p-4 space-y-3">
+          <label class="text-xs font-semibold text-muted uppercase tracking-wider">Add Habit</label>
+          <div class="flex gap-2">
+            <input type="text" id="new-habit-input" placeholder="e.g. Rock climbing" maxlength="40" class="flex-1 bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring" style="color:var(--fg)" />
+            <button type="submit" class="px-4 py-2 rounded-xl primary-bg text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95">Add</button>
+          </div>
+        </form>
+
+        <!-- Current habits -->
+        <div class="section-card card border border-color rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-semibold text-muted uppercase tracking-wider">Your Habits</span>
+            <span class="text-[10px] text-muted">${list.length}</span>
+          </div>
+          <div class="space-y-1.5 max-h-80 overflow-y-auto overscroll-y-contain" style="-webkit-overflow-scrolling:touch;scrollbar-width:thin">
+            ${itemsHtml}
+          </div>
+          ${list.length === 0 ? '<p class="text-xs text-muted text-center py-4">No habits yet. Add one above!</p>' : ''}
+        </div>
+
+        <!-- Reset to defaults -->
+        <button id="reset-habits-btn" class="w-full py-2.5 rounded-2xl text-sm font-medium transition-all active:scale-[0.98] hover:opacity-80" style="color:var(--muted-text);background:color-mix(in srgb, var(--muted-text) 8%, transparent)">
+          Reset to defaults
+        </button>
+      </div>`;
+
+      document.getElementById('add-habit-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const inp = document.getElementById('new-habit-input');
+        const val = inp.value.trim();
+        if (!val) return;
+        const habits = getHabits();
+        if (habits.includes(val)) { inp.value = ''; return; }
+        habits.push(val);
+        saveHabits(habits);
+        inp.value = '';
+        renderHabits();
+      });
+
+      document.querySelectorAll('.delete-habit-btn').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          const habits = getHabits();
+          habits.splice(idx, 1);
+          saveHabits(habits);
+          renderHabits();
+        })
+      );
+
+      document.getElementById('reset-habits-btn').addEventListener('click', () => {
+        saveHabits([...DEFAULT_HABITS]);
+        renderHabits();
+      });
+    }
+
+    // ─── Render Recap ────────────────────────────────────────────────────
+    function renderRecap() {
+      const all = loadEntries();
+      const entries = getWeekEntries(all);
+      if (entries.length === 0) {
+        views.recap.innerHTML = `<div class="space-y-4 animate-fade-in">
+          <div class="text-center space-y-1">
+            <h2 class="text-lg font-bold">Weekly Recap</h2>
+            <p class="text-xs text-muted">${formatWeek()}</p>
+          </div>
+          <div class="flex flex-col items-center justify-center py-16 text-center space-y-3">
+            <span class="text-5xl animate-float">📅</span>
+            <h3 class="text-lg font-semibold">No data this week</h3>
+            <p class="text-sm text-muted max-w-xs">Start checking in to see your weekly wrapped recap here.</p>
+          </div>
+        </div>`;
+        return;
+      }
+
+      const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+      const moodEntries = sorted.filter(e => e.mood);
+      const avgMood = moodEntries.length > 0 ? moodEntries.reduce((s, e) => s + e.mood, 0) / moodEntries.length : 0;
+      const avgMoodRound = Math.round(avgMood);
+      const moodCounts = {};
+      for (const e of moodEntries) moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
+      const topMood = Object.keys(moodCounts).length > 0
+        ? parseInt(Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0])
+        : null;
+
+      const allEnt = sorted.flatMap(e => e.entertainment);
+      const topRated = [...allEnt].sort((a, b) => b.rating - a.rating).slice(0, 3);
+      const typeCounts = {};
+      for (const ent of allEnt) typeCounts[ent.type] = (typeCounts[ent.type] || 0) + 1;
+      const checkinDays = moodEntries.length;
+      const totalDays = sorted.length;
+
+      // Habits aggregation
+      const habitTotals = {};
+      for (const e of sorted) {
+        if (e.habits) {
+          for (const h of e.habits) {
+            if (h.duration > 0) {
+              habitTotals[h.name] = (habitTotals[h.name] || 0) + h.duration;
+            }
+          }
+        }
+      }
+      const topHabits = Object.entries(habitTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+      const hasEnergy = sorted.some(e => e.energy);
+      const avgEnergy = hasEnergy
+        ? sorted.filter(e => e.energy).reduce((s, e) => s + e.energy, 0) / sorted.filter(e => e.energy).length
+        : 0;
+      const energyEmoji = avgEnergy ? ENERGY_LEVELS[Math.round(avgEnergy) - 1]?.emoji || '' : '';
+      const hasSleep = sorted.some(e => e.sleep);
+      const avgSleep = hasSleep
+        ? sorted.filter(e => e.sleep).reduce((s, e) => s + e.sleep, 0) / sorted.filter(e => e.sleep).length
+        : 0;
+
+      // Mood bar details
+      const moodBars = [1,2,3,4,5].map(m => {
+        const count = moodEntries.filter(e => e.mood === m).length;
+        const pct = moodEntries.length > 0 ? (count / moodEntries.length) * 100 : 0;
+        return `<div class="flex flex-col items-center gap-1.5">
+          <span class="text-lg">${MOOD_EMOJIS[m]}</span>
+          <div class="w-7 h-16 mood-bar-track rounded-full overflow-hidden relative">
+            <div class="absolute bottom-0 w-full mood-bar-fill transition-all duration-700 ease-out" style="height:${pct}%"></div>
+          </div>
+          <span class="text-[10px] font-semibold text-muted">${count}</span>
+        </div>`;
+      }).join('');
+
+      const slides = [];
+
+      // -- Slide 1: Header --
+      slides.push(`<div class="wrapped-slide min-h-[60vh] flex flex-col items-center justify-center text-center py-16 px-4 rounded-3xl relative overflow-hidden shimmer-bg" data-delay="0">
+        <div class="relative z-10 space-y-4">
+          <div class="inline-block px-4 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest" style="background:color-mix(in srgb, var(--primary) 15%, transparent);color:var(--primary)">Weekly Wrapped</div>
+          <h2 class="text-2xl font-bold" style="background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Your Week<br>in Review</h2>
+          <p class="text-sm text-muted">${formatWeek()}</p>
+          <div class="flex justify-center gap-2 text-sm text-muted">
+            <span>${checkinDays} check-ins</span>
+            <span>·</span>
+            <span>${allEnt.length} logged</span>
+          </div>
+        </div>
+      </div>`);
+
+      // -- Slide 2: Mood --
+      const moodCaption = topMood
+        ? `You felt <strong>${MOODS[topMood - 1].label}</strong> most often this week`
+        : '';
+      slides.push(`<div class="wrapped-slide min-h-[50vh] flex flex-col items-center justify-center text-center py-16 px-4 rounded-3xl relative overflow-hidden" style="background:color-mix(in srgb, var(--primary) 8%, transparent)" data-delay="200">
+        <div class="relative z-10 space-y-5 max-w-sm">
+          <p class="text-[10px] font-semibold text-muted uppercase tracking-widest">Mood</p>
+          <span class="text-7xl inline-block animate-float">${avgMood > 0 ? MOOD_EMOJIS[avgMoodRound] : '—'}</span>
+          <div>
+            <p class="text-lg font-semibold">${avgMood > 0 ? avgMood.toFixed(1) : 'N/A'} / 5</p>
+            <p class="text-sm text-muted">${moodCaption}</p>
+          </div>
+          <div class="flex justify-center gap-2.5">${moodBars}</div>
+          <div class="flex justify-center gap-6 pt-2">
+            ${energyEmoji ? `<div class="text-center">
+              <span class="text-2xl">${energyEmoji}</span>
+              <p class="text-[10px] text-muted mt-0.5">Energy</p>
+            </div>` : ''}
+            ${avgSleep ? `<div class="text-center">
+              <span class="text-2xl font-bold">${avgSleep.toFixed(1)}</span>
+              <p class="text-[10px] text-muted mt-0.5">Sleep (h)</p>
+            </div>` : ''}
+          </div>
+        </div>
+      </div>`);
+
+      // -- Slide 3: Habits --
+      if (topHabits.length > 0) {
+        slides.push(`<div class="wrapped-slide min-h-[50vh] flex flex-col items-center justify-center text-center py-16 px-4 rounded-3xl relative overflow-hidden" style="background:color-mix(in srgb, var(--accent) 6%, transparent)" data-delay="400">
+          <div class="relative z-10 space-y-5 max-w-sm">
+            <p class="text-[10px] font-semibold text-muted uppercase tracking-widest">Your Habits</p>
+            <span class="text-5xl">🏃</span>
+            <div class="space-y-3 w-full">
+              ${topHabits.map(([name, mins], i) =>
+                `<div class="flex items-center justify-between gap-3 card-hover-bg rounded-xl px-4 py-2.5 animate-slide-up" style="animation-delay:${i * 0.15}s">
+                  <span class="text-sm font-medium">${name}</span>
+                  <span class="text-xs font-semibold" style="color:var(--primary)">${mins}m total</span>
+                </div>`
+              ).join('')}
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // -- Slide 4: Entertainment Top Picks --
+      if (topRated.length > 0) {
+        slides.push(`<div class="wrapped-slide min-h-[50vh] flex flex-col items-center justify-center text-center py-16 px-4 rounded-3xl relative overflow-hidden shimmer-bg" data-delay="600">
+          <div class="relative z-10 space-y-5 max-w-sm w-full">
+            <p class="text-[10px] font-semibold text-muted uppercase tracking-widest">Top Entertainment</p>
+            <span class="text-4xl">🎧</span>
+            <div class="space-y-2.5">
+              ${topRated.map((e, i) => {
+                const meta = e.artist ? e.artist : e.author ? e.author : e.host ? e.host : '';
+                return `<div class="flex items-center gap-3 card-hover-bg rounded-xl px-3.5 py-2.5 text-left animate-slide-up" style="animation-delay:${i * 0.15}s">
+                  <span class="text-sm font-bold shrink-0" style="color:var(--primary)">#${i + 1}</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium truncate">${e.title}</div>
+                    ${meta ? `<div class="text-[10px] text-muted truncate">${meta}</div>` : ''}
+                  </div>
+                  <span class="text-xs shrink-0" style="color:var(--accent)">${'★'.repeat(e.rating)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+            ${Object.keys(typeCounts).length > 0
+              ? `<div class="flex flex-wrap justify-center gap-2 pt-1">` +
+                Object.entries(typeCounts).map(([type, count]) =>
+                  `<span class="text-[10px] px-2.5 py-1 rounded-full font-semibold" style="background:color-mix(in srgb, var(--primary) 12%, transparent);color:var(--primary)">${TYPE_LABELS[type] || type} ×${count}</span>`
+                ).join('') + `</div>`
+              : ''}
+          </div>
+        </div>`);
+      }
+
+      // -- Slide 5: Summary Stats --
+      slides.push(`<div class="wrapped-slide min-h-[50vh] flex flex-col items-center justify-center text-center py-16 px-4 rounded-3xl relative overflow-hidden" style="background:color-mix(in srgb, var(--primary) 8%, transparent)" data-delay="800">
+        <div class="relative z-10 space-y-6 max-w-sm">
+          <p class="text-[10px] font-semibold text-muted uppercase tracking-widest">By the Numbers</p>
+          <span class="text-5xl">📊</span>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="card-hover-bg rounded-xl py-3 px-4">
+              <p class="text-2xl font-bold" style="color:var(--primary)">${checkinDays}</p>
+              <p class="text-[10px] text-muted font-medium">Days checked in</p>
+            </div>
+            <div class="card-hover-bg rounded-xl py-3 px-4">
+              <p class="text-2xl font-bold" style="color:var(--primary)">${allEnt.length}</p>
+              <p class="text-[10px] text-muted font-medium">Entertainment entries</p>
+            </div>
+            ${topHabits[0] ? `<div class="card-hover-bg rounded-xl py-3 px-4">
+              <p class="text-lg font-bold truncate" style="color:var(--primary)" title="${topHabits[0][0]}">${topHabits[0][1]}m</p>
+              <p class="text-[10px] text-muted font-medium">Top habit total</p>
+            </div>` : ''}
+            ${avgMood > 0 ? `<div class="card-hover-bg rounded-xl py-3 px-4">
+              <p class="text-2xl font-bold" style="color:var(--primary)">${avgMood.toFixed(1)}</p>
+              <p class="text-[10px] text-muted font-medium">Avg mood / 5</p>
+            </div>` : ''}
+          </div>
+          <div class="pt-1">
+            <p class="text-[10px] tracking-widest" style="color:color-mix(in srgb, var(--muted-text) 60%, transparent)">LIFE CHAPTERS · WEEKLY WRAPPED</p>
+          </div>
+        </div>
+      </div>`);
+
+      views.recap.innerHTML = `<div class="space-y-4 animate-fade-in pb-8" id="wrapped-container">
+        ${slides.join('')}
+      </div>`;
+
+      // Staggered visibility via Intersection Observer
+      setTimeout(() => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.wrapped-slide').forEach(el => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(40px)';
+          el.style.transition = 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+          observer.observe(el);
+        });
+      }, 100);
+    }
+
+    // ─── Account Setup ───────────────────────────────────────────────────
+    function renderAccountSetup() {
+      const colors = ['pink','red','orange','yellow','green','blue','purple','black','grey','white'];
+      const colorSwatches = colors.map(c =>
+        `<button type="button" data-color="${c}" class="color-btn w-8 h-8 rounded-full transition-all active:scale-90" style="background:${c};box-shadow:0 2px 6px rgba(0,0,0,0.1)" title="${c}"></button>`
+      ).join('');
+
+      const overlay = document.createElement('div');
+      overlay.className = 'success-overlay';
+      overlay.innerHTML = `<div class="success-card max-w-sm w-full mx-4 py-6 px-5" style="animation:scale-in 0.3s ease-out">
+        <span class="text-3xl block mb-2">🔐</span>
+        <h2 class="text-lg font-bold mb-1">Create Account</h2>
+        <p class="text-xs text-muted mb-4">Unlock weekly wrapped and sync</p>
+        <form id="account-form" class="space-y-3 text-left" style="font-family:system-ui,sans-serif">
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Username</label>
+            <input type="text" id="reg-username" placeholder="Choose a username" maxlength="30" class="w-full bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring mt-1" style="color:var(--fg);font-family:system-ui,sans-serif">
+            <p class="text-[10px] text-muted mt-0.5" id="reg-username-msg"></p>
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Password</label>
+            <input type="password" id="reg-password" placeholder="Create a password" maxlength="60" class="w-full bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring mt-1" style="color:var(--fg);font-family:system-ui,sans-serif">
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Age <span class="font-normal lowercase">optional</span></label>
+            <input type="number" id="reg-age" min="1" max="150" placeholder="e.g. 25" class="w-full bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring mt-1" style="color:var(--fg);font-family:system-ui,sans-serif">
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Gender</label>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              ${['Female','Male','Non-binary','Prefer not to say'].map(g =>
+                `<button type="button" data-gender="${g}" class="gender-btn px-3 py-2 rounded-xl text-xs font-medium transition-all card border border-color hover:card-hover-bg" style="font-family:system-ui,sans-serif">${g}</button>`
+              ).join('')}
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Color Theme</label>
+            <div class="flex flex-wrap gap-2 mt-1">${colorSwatches}</div>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl primary-bg text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] mt-1" style="font-family:system-ui,sans-serif;opacity:0.4" id="account-submit">Create Account</button>
+        </form>
+      </div>`;
+      document.body.appendChild(overlay);
+
+      let selectedGender = '';
+      let selectedColor = '';
+      document.querySelectorAll('.gender-btn').forEach(b =>
+        b.addEventListener('click', () => {
+          document.querySelectorAll('.gender-btn').forEach(x => { x.classList.remove('primary-bg', 'text-white'); x.classList.add('card', 'border', 'border-color'); });
+          selectedGender = b.dataset.gender;
+          b.classList.remove('card', 'border', 'border-color'); b.classList.add('primary-bg', 'text-white');
+          checkReady();
+        })
+      );
+      document.querySelectorAll('.color-btn').forEach(b =>
+        b.addEventListener('click', () => {
+          document.querySelectorAll('.color-btn').forEach(x => x.style.outline = 'none');
+          selectedColor = b.dataset.color;
+          b.style.outline = '3px solid var(--primary)'; b.style.outlineOffset = '2px';
+          const t = buildTheme(selectedColor, window.matchMedia('(prefers-color-scheme: dark)').matches);
+          Object.entries(t).forEach(([k, v]) => {
+            const map = { pl: 'primary-light', hover: 'card-hover-bg', card: 'card-bg', muted: 'muted-text', border: 'border-color' };
+            document.documentElement.style.setProperty('--' + (map[k] || k), v);
+          });
+          checkReady();
+        })
+      );
+      document.getElementById('reg-username').addEventListener('input', () => validateUsername());
+      function validateUsername() {
+        const val = document.getElementById('reg-username').value.trim();
+        const msg = document.getElementById('reg-username-msg');
+        if (!val) { msg.textContent = ''; return false; }
+        if (containsBannedWord(val)) { msg.textContent = 'Please choose a different username'; msg.style.color = 'red'; return false; }
+        if (loadAccounts()[val]) { msg.textContent = 'Username taken'; msg.style.color = 'red'; return false; }
+        msg.textContent = 'Available'; msg.style.color = 'green'; return true;
+      }
+      function checkReady() {
+        const btn = document.getElementById('account-submit');
+        const u = document.getElementById('reg-username').value.trim();
+        const p = document.getElementById('reg-password').value;
+        btn.style.opacity = u && p && selectedGender && selectedColor && !containsBannedWord(u) && !loadAccounts()[u] ? '1' : '0.4';
+      }
+      document.getElementById('reg-password').addEventListener('input', checkReady);
+      document.getElementById('account-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const u = document.getElementById('reg-username').value.trim();
+        const p = document.getElementById('reg-password').value;
+        if (!u || !p || !selectedGender || !selectedColor) return;
+        if (containsBannedWord(u)) return;
+        if (loadAccounts()[u]) return;
+        const accounts = loadAccounts();
+        accounts[u] = { hash: simpleHash(p), color: selectedColor, gender: selectedGender, age: parseInt(document.getElementById('reg-age').value) || null };
+        saveAccounts(accounts);
+        setSession(u);
+        saveProfile({ age: parseInt(document.getElementById('reg-age').value) || null, gender: selectedGender, color: selectedColor });
+        if (selectedGender.toLowerCase() === 'female') document.getElementById('nav-period').style.display = '';
+        overlay.remove();
+        renderTimeline();
+      });
+    }
+
+    // ─── Login ────────────────────────────────────────────────────────────
+    function renderLogin() {
+      const overlay = document.createElement('div');
+      overlay.className = 'success-overlay';
+      overlay.innerHTML = `<div class="success-card max-w-sm w-full mx-4 py-6 px-5" style="animation:scale-in 0.3s ease-out">
+        <span class="text-3xl block mb-2">👋</span>
+        <h2 class="text-lg font-bold mb-1">Welcome Back</h2>
+        <p class="text-xs text-muted mb-4">Log in to continue</p>
+        <form id="login-form" class="space-y-3 text-left" style="font-family:system-ui,sans-serif">
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Username</label>
+            <input type="text" id="login-username" placeholder="Your username" class="w-full bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring mt-1" style="color:var(--fg);font-family:system-ui,sans-serif">
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-muted uppercase tracking-wider">Password</label>
+            <input type="password" id="login-password" placeholder="Your password" class="w-full bg-transparent text-sm border border-color rounded-xl px-3 py-2 outline-none primary-ring mt-1" style="color:var(--fg);font-family:system-ui,sans-serif">
+          </div>
+          <p id="login-error" class="text-xs text-center" style="color:red;display:none">Invalid username or password</p>
+          <button type="submit" class="w-full py-2.5 rounded-xl primary-bg text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]" style="font-family:system-ui,sans-serif">Log In</button>
+        </form>
+      </div>`;
+      document.body.appendChild(overlay);
+
+      document.getElementById('login-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value;
+        const accounts = loadAccounts();
+        if (accounts[u] && accounts[u].hash === simpleHash(p)) {
+          setSession(u);
+          const acct = accounts[u];
+          if (acct.color || acct.gender) {
+            saveProfile({ age: acct.age || null, gender: acct.gender || null, color: acct.color || 'blue' });
+            applyProfileTheme(loadProfile());
+            if (acct.gender && acct.gender.toLowerCase() === 'female') document.getElementById('nav-period').style.display = '';
+          }
+          overlay.remove();
+          renderTimeline();
+        } else {
+          const err = document.getElementById('login-error');
+          err.style.display = '';
+          setTimeout(() => err.style.display = 'none', 2500);
+        }
+      });
+    }
+
+    // ─── Account Banner ───────────────────────────────────────────────────
+    function renderAccountBanner() {
+      if (!hasAccountBanner()) return '';
+      return `<div class="card border rounded-2xl p-4 space-y-3 animate-fade-in" style="background:linear-gradient(135deg,color-mix(in srgb, var(--primary) 8%, transparent),transparent)">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">🔐</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold">Data saved!</p>
+            <p class="text-xs text-muted mt-0.5">Create an account to unlock your weekly wrapped and keep your story safe.</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button id="create-account-btn" class="flex-1 py-2 rounded-xl primary-bg text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95">Create Account</button>
+          <button id="dismiss-banner-btn" class="px-3 py-2 rounded-xl text-xs font-medium transition-all hover:opacity-80 active:scale-95" style="color:var(--muted-text);background:color-mix(in srgb, var(--muted-text) 8%, transparent)">Later</button>
+        </div>
+      </div>`;
+    }
+
+    // ─── Render Period ───────────────────────────────────────────────────
+    function renderPeriod() {
+      const data = loadPeriods();
+      const logs = data.logs || {};
+      const today = todayStr();
+      const isLogged = !!logs[today];
+      const sortedDates = Object.keys(logs).sort();
+      const lastStart = sortedDates.length > 0 ? sortedDates[0] : null;
+      const cycleLen = data.cycleLength || 28;
+      const periodLen = data.periodLength || 5;
+
+      // Calculate next predicted start
+      let nextPrediction = '';
+      if (lastStart) {
+        const last = new Date(lastStart + 'T12:00:00');
+        last.setDate(last.getDate() + cycleLen);
+        nextPrediction = last.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      // Recent entries
+      const recent = sortedDates.slice(0, 14);
+      const recentHtml = recent.length > 0
+        ? '<div class="space-y-1">' + recent.map(d => {
+            const l = logs[d];
+            const label = d === today ? 'Today' : new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const flowDots = l?.flow === 'Heavy' ? '🔴🔴🔴' : l?.flow === 'Medium' ? '🔴🔴' : l?.flow === 'Light' ? '🔴' : '';
+            return `<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl ${d === today ? 'card-hover-bg' : ''}" style="font-family:system-ui,sans-serif">
+              <span class="text-xs font-medium flex-1" style="color:var(--fg)">${label}</span>
+              ${flowDots ? `<span class="text-xs">${flowDots}</span>` : ''}
+              ${l?.symptoms?.length ? `<span class="text-[10px] text-muted">${l.symptoms.slice(0, 2).join(', ')}${l.symptoms.length > 2 ? '…' : ''}</span>` : ''}
+            </div>`;
+          }).join('') + '</div>'
+        : '<p class="text-xs text-muted text-center py-4" style="font-family:system-ui,sans-serif">No periods logged yet</p>';
+
+      // Symptom toggles
+      const symptomHtml = PERIOD_SYMPTOMS.map(s => {
+        const sel = (logs[today]?.symptoms || []).includes(s);
+        return `<button type="button" data-symp="${s}" class="symp-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${sel ? 'primary-bg text-white' : 'card border border-color text-muted hover:border-primary/50'}">${s}</button>`;
+      }).join('');
+
+      views.period.innerHTML = `<div class="space-y-5 animate-fade-in" style="font-family:system-ui,sans-serif">
+        <div class="text-center space-y-1 pb-1">
+          <h2 class="text-lg font-bold" style="font-family:Chewy, sans-serif">Period Tracker</h2>
+          <p class="text-xs text-muted">Track your cycle, symptoms, and flow</p>
+        </div>
+
+        <!-- Today's log -->
+        <div class="shimmer-bg rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-muted uppercase tracking-wider">${isLogged ? 'Update Today' : 'Log Today'}</span>
+            <span class="text-[10px] text-muted">${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</span>
+          </div>
+          ${!isLogged ? `<button id="start-period-btn" class="w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] hover:opacity-90" style="background:color-mix(in srgb, red 12%, transparent);color:color-mix(in srgb, red 20%, var(--primary))">Start period</button>` : `
+          <div class="space-y-3">
+            <div>
+              <label class="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5 block">Flow</label>
+              <div class="flex gap-2">${FLOW_LEVELS.map(f => {
+                const sel = logs[today]?.flow === f;
+                return `<button type="button" data-flow="${f}" class="flow-btn flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${sel ? 'primary-bg text-white' : 'card border border-color text-muted hover:card-hover-bg'}">${f}</button>`;
+              }).join('')}</div>
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5 block">Symptoms</label>
+              <div class="flex flex-wrap gap-1.5">${symptomHtml}</div>
+            </div>
+            <input type="text" id="period-notes" value="${(logs[today]?.notes || '').replace(/"/g, '&quot;')}" placeholder="Notes..." maxlength="100" class="w-full bg-transparent text-xs border border-color rounded-xl px-3 py-2 outline-none primary-ring" style="color:var(--fg)">
+            <div class="flex gap-2">
+              <button id="update-period-btn" class="flex-1 py-2.5 rounded-xl primary-bg text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]">Update</button>
+              <button id="end-period-btn" class="py-2.5 px-4 rounded-xl text-xs font-medium transition-all hover:opacity-80 active:scale-[0.98]" style="color:var(--muted-text);background:color-mix(in srgb, var(--muted-text) 8%, transparent)">End</button>
+            </div>
+          </div>`}
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="card-hover-bg rounded-xl py-2.5 text-center">
+            <p class="text-xs text-muted" style="font-size:9px">Cycle</p>
+            <p class="text-sm font-bold">${cycleLen}d</p>
+          </div>
+          <div class="card-hover-bg rounded-xl py-2.5 text-center">
+            <p class="text-xs text-muted" style="font-size:9px">Period</p>
+            <p class="text-sm font-bold">${periodLen}d</p>
+          </div>
+          <div class="card-hover-bg rounded-xl py-2.5 text-center">
+            <p class="text-xs text-muted" style="font-size:9px">Logged</p>
+            <p class="text-sm font-bold">${sortedDates.length}d</p>
+          </div>
+        </div>
+        ${nextPrediction ? `<div class="text-center py-1">
+          <p class="text-xs text-muted">Next predicted: <strong style="color:var(--primary)">${nextPrediction}</strong></p>
+        </div>` : ''}
+
+        <!-- Recent log -->
+        <div class="section-card card border border-color rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-muted uppercase tracking-wider">Recent</span>
+            <span class="text-[10px] text-muted">${recent.length}</span>
+          </div>
+          ${recentHtml}
+        </div>
+
+        <!-- Cycle settings -->
+        <details class="card border border-color rounded-2xl p-3.5">
+          <summary class="text-xs font-semibold text-muted uppercase tracking-wider cursor-pointer">Cycle Settings</summary>
+          <div class="space-y-2 mt-3">
+            <div class="flex items-center gap-3">
+              <label class="text-xs text-muted flex-1">Avg cycle length (days)</label>
+              <input type="number" id="set-cycle" value="${cycleLen}" min="20" max="60" class="w-16 text-center text-sm bg-transparent border border-color rounded-lg py-1 outline-none primary-ring" style="color:var(--fg)">
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="text-xs text-muted flex-1">Avg period length (days)</label>
+              <input type="number" id="set-period" value="${periodLen}" min="1" max="14" class="w-16 text-center text-sm bg-transparent border border-color rounded-lg py-1 outline-none primary-ring" style="color:var(--fg)">
+            </div>
+            <button id="save-cycle-btn" class="w-full py-2 rounded-xl primary-bg text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-[0.98]">Save</button>
+          </div>
+        </details>
+      </div>`;
+
+      // Event wiring
+      const startBtn = document.getElementById('start-period-btn');
+      if (startBtn) startBtn.addEventListener('click', () => {
+        const data = loadPeriods();
+        data.logs[today] = { flow: 'Medium', symptoms: [], notes: '' };
+        savePeriods(data);
+        renderPeriod();
+      });
+      document.querySelectorAll('.flow-btn').forEach(b =>
+        b.addEventListener('click', () => {
+          const data = loadPeriods();
+          if (!data.logs[today]) data.logs[today] = { flow: 'Medium', symptoms: [], notes: '' };
+          data.logs[today].flow = b.dataset.flow;
+          savePeriods(data);
+          renderPeriod();
+        })
+      );
+      document.querySelectorAll('.symp-btn').forEach(b =>
+        b.addEventListener('click', () => {
+          const data = loadPeriods();
+          if (!data.logs[today]) data.logs[today] = { flow: 'Medium', symptoms: [], notes: '' };
+          const s = b.dataset.symp;
+          const symps = data.logs[today].symptoms || [];
+          data.logs[today].symptoms = symps.includes(s) ? symps.filter(x => x !== s) : [...symps, s];
+          savePeriods(data);
+          renderPeriod();
+        })
+      );
+      const notesInput = document.getElementById('period-notes');
+      if (notesInput) notesInput.addEventListener('input', e => {
+        const data = loadPeriods();
+        if (!data.logs[today]) data.logs[today] = { flow: 'Medium', symptoms: [], notes: '' };
+        data.logs[today].notes = e.target.value;
+        savePeriods(data);
+      });
+      const updateBtn = document.getElementById('update-period-btn');
+      if (updateBtn) updateBtn.addEventListener('click', () => renderPeriod());
+      const endBtn = document.getElementById('end-period-btn');
+      if (endBtn) endBtn.addEventListener('click', () => {
+        const data = loadPeriods();
+        delete data.logs[today];
+        savePeriods(data);
+        renderPeriod();
+      });
+      document.getElementById('save-cycle-btn').addEventListener('click', () => {
+        const data = loadPeriods();
+        const cl = parseInt(document.getElementById('set-cycle').value);
+        const pl = parseInt(document.getElementById('set-period').value);
+        if (cl > 0) data.cycleLength = cl;
+        if (pl > 0) data.periodLength = pl;
+        savePeriods(data);
+        renderPeriod();
+      });
+    }
+
+    // ─── Initial Render ──────────────────────────────────────────────────
+    const session = getSession();
+    if (hasAccounts() && !session) {
+      renderLogin();
+    } else {
+      if (session) {
+        const accts = loadAccounts();
+        const acct = accts[session.username];
+        if (acct && (acct.color || acct.gender)) {
+          saveProfile({ age: acct.age || null, gender: acct.gender || null, color: acct.color || 'blue' });
+          applyProfileTheme(loadProfile());
+          if (acct.gender && acct.gender.toLowerCase() === 'female') document.getElementById('nav-period').style.display = '';
+        }
+      }
+      renderTimeline();
+    }
+  </script>
+</body>
+</html>
